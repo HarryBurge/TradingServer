@@ -1,0 +1,120 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/duration.proto";
+
+package client;
+option go_package = "TradingServer/internal/api/grpc/client/pb";
+
+message Decimal {
+    int64 coefficent = 1;
+    int32 exponent = 2;
+}
+
+service ClientService {
+    rpc RemoveClient (RemoveClientRequest) returns (RemoveClientResponse);
+
+    rpc StreamOpenCandles (StreamOpenCandlesReq) returns (stream StreamOpenCandlesRet);
+    rpc StreamClosedCandles (StreamClosedCandlesReq) returns (stream StreamClosedCandlesRet);
+    rpc GetHistoricalCandles (GetHistoricalCandlesReq) returns (GetHistoricalCandlesRet);
+}
+
+message RemoveClientRequest {
+    uint32 client_id = 1;
+}
+
+message RemoveClientResponse {
+}
+
+message StreamOpenCandlesReq {
+    uint32 client_id = 1;
+}
+
+message StreamOpenCandlesRet {
+    message OpenCandle {
+        Decimal price = 1;
+        Decimal high = 2;
+        Decimal low = 3;
+        Decimal open = 4;
+        Decimal volume = 5;
+    }
+
+    map<uint32, OpenCandle> open_candles = 1;
+}
+
+message StreamClosedCandlesReq {
+    uint32 client_id = 1;
+}
+
+message StreamClosedCandlesRet {
+    message ClosedCandle {
+        Decimal high = 1;
+        Decimal low = 2;
+        Decimal open = 3;
+        Decimal close = 4;
+        Decimal volume = 5;
+    }
+
+    map<uint32, ClosedCandle> closed_candles = 1;
+}
+
+message GetHistoricalCandlesReq {
+    message AllSymbols {
+
+    }
+    message SpecificSymbols {
+        repeated uint32 symbol_ids = 1;
+    }
+
+    message Window {
+        google.protobuf.Timestamp start = 1;
+        google.protobuf.Timestamp end = 2;
+    }
+    message Duration {
+        google.protobuf.Duration duration = 1;
+    }
+
+    uint32 client_id = 1;
+    oneof symbols {
+        AllSymbols all_symbols = 2;
+        SpecificSymbols specific_symbols = 3;
+    }
+    oneof time {
+        Window window = 4;
+        Duration duration = 5;
+    }
+}
+
+message GetHistoricalCandlesRet {
+    message ClosedCandles {
+        repeated Decimal high = 1;
+        repeated Decimal low = 2;
+        repeated Decimal open = 3;
+        repeated Decimal close = 4;
+        repeated Decimal volume = 5;
+    }
+
+    map<uint32, ClosedCandles> historical_candles = 1;
+}
+
+service BacktestClientService {
+    rpc CreateBacktestClient (CreateBacktestClientRequest) returns (CreateBacktestClientResponse);
+
+    rpc StepToTime (StepToTimeReq) returns (StepToTimeRet);
+}
+
+message CreateBacktestClientRequest {
+    uint32 dataset_id = 1;
+}
+
+message CreateBacktestClientResponse {
+    uint32 client_id = 1;
+}
+
+message StepToTimeReq {
+    uint32 client_id = 1;
+    google.protobuf.Timestamp time = 2;
+}
+
+message StepToTimeRet {  
+}

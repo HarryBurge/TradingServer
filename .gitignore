@@ -19,3 +19,9 @@
 
 # Go workspace file
 go.work
+
+# Compiled protobuf files
+*.pb.go
+
+# Json configuation files
+*.json

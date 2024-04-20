@@ -1,0 +1,89 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+
+package dataset;
+option go_package = "TradingServer/internal/api/grpc/dataset/pb";
+
+service DatasetService {
+    rpc CreateDataset (CreateDatasetRequest) returns (CreateDatasetResponse);
+    rpc RemoveDataset (RemoveDatasetRequest) returns (RemoveDatasetResponse);
+
+    rpc GetStartTime (GetStartTimeRequest) returns (GetStartTimeResponse);
+    rpc GetEndTime (GetEndTimeRequest) returns (GetEndTimeResponse);
+    rpc GetSymbols (GetSymbolsRequest) returns (GetSymbolsResponse);
+}
+
+message CreateDatasetRequest {
+    message AlpacaDataset {
+        message SymbolQuery {
+            enum SymbolType {
+                STOCK = 0;
+                CRYPTO = 1;
+            }
+            enum TimeFrameUnit {
+                MIN = 0;
+                HOUR = 1;
+                DAY = 2;
+                WEEK = 3;
+                MONTH = 4;
+            }
+
+            string symbol_name = 1;
+            google.protobuf.Timestamp start_time = 2;
+            google.protobuf.Timestamp end_time = 3;
+            TimeFrameUnit time_frame_unit = 4;
+            SymbolType symbol_type = 5;
+        }
+
+        repeated SymbolQuery symbols = 1;
+    }
+
+    message CSVDataset {
+
+    }
+
+    oneof dataset {
+        AlpacaDataset alpaca = 1;
+        CSVDataset csv = 2;
+    }
+}
+
+message CreateDatasetResponse {
+    uint32 dataset_id = 1;
+}
+
+message RemoveDatasetRequest {
+    uint32 dataset_id = 1;
+}
+
+message RemoveDatasetResponse {
+}
+
+message GetStartTimeRequest {
+    uint32 dataset_id = 1;
+}
+
+message GetStartTimeResponse {
+    google.protobuf.Timestamp start_time = 1;
+}
+
+message GetEndTimeRequest {
+    uint32 dataset_id = 1;
+}
+
+message GetEndTimeResponse {
+    google.protobuf.Timestamp end_time = 1;
+}
+
+message GetSymbolsRequest {
+    uint32 dataset_id = 1;
+}
+
+message GetSymbolsResponse {
+    message Symbol {
+        string symbol_name = 1;
+    }
+
+    repeated Symbol symbols = 1;
+}
